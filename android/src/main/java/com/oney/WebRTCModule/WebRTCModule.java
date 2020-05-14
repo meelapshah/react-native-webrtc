@@ -718,6 +718,7 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
 
                 @Override
                 public void onCreateSuccess(SessionDescription sdp) {
+
                     WritableMap params = Arguments.createMap();
                     params.putString("sdp", sdp.description);
                     params.putString("type", sdp.type.canonicalForm());
@@ -752,7 +753,6 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
                                                  ReadableMap options,
                                                  final Callback callback) {
         PeerConnection peerConnection = getPeerConnection(id);
-
         if (peerConnection != null) {
             peerConnection.createAnswer(new SdpObserver() {
                 @Override
@@ -762,6 +762,7 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
 
                 @Override
                 public void onCreateSuccess(SessionDescription sdp) {
+
                     WritableMap params = Arguments.createMap();
                     params.putString("sdp", sdp.description);
                     params.putString("type", sdp.type.canonicalForm());
@@ -1141,7 +1142,6 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
                 callback.invoke(false, "invalid trackId and type");
                 return;
             }
-
             WritableMap res = Arguments.createMap();
             res.putString("id", transceiverId);
             res.putMap("state", this.serializeState(id));
