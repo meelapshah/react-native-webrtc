@@ -1033,6 +1033,30 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
         return new RtpTransceiver.RtpTransceiverInit(direction, streamIds);
     }
 
+    private ReadableMap serializeTrack(MediaStreamTrack track) {
+        WritableMap trackInfo = Arguments.createMap();
+        trackInfo.putString("id", track.id());
+        if (track.kind().equals("video")) {
+            trackInfo.putString("label", "Video");
+        } else if (track.kind().equals("audio")) {
+            trackInfo.putString("label", "Aideo");
+        } else {
+            throw new Error("Unknown kind: " + track.kind());
+        }
+        trackInfo.putString("kind", track.kind());
+        trackInfo.putBoolean("enabled", track.enabled());
+        trackInfo.putString("readyState", track.state().toString());
+        trackInfo.putBoolean("remote", true);
+        return trackInfo;
+    }
+
+    private ReadableMap serializeReceiver(RtpReceiver receiver) {
+        WritableMap res = Arguments.createMap();
+        res.putString("id", receiver.id());
+        res.putMap("track", serializeTrack(receiver.track()));
+        return res;
+    }
+
     private ReadableMap serializeTransceiverState(String id, RtpTransceiver transceiver) {
         WritableMap res = Arguments.createMap();
         res.putString("id", id);
@@ -1046,6 +1070,7 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
             res.putString("currentDirection", serializeDirection(transceiver.getCurrentDirection()));
         }
         res.putBoolean("isStopped",transceiver.isStopped());
+        res.putMap("receiver", serializeReceiver(transceiver.getReceiver()));
         return res;
     }
 
@@ -1115,6 +1140,32 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
             callback.invoke(true, serializeTransceiverState(transceiverId, transceiver));
         } else {
             Log.d(TAG, "peerConnectionAddTransceiver() peerConnection is null");
+            callback.invoke(false, "peerConnection is null");
+        }
+    }
+
+    @ReactMethod
+    public void peerConnectionTransceiverReplaceTrack(int id,
+                                                      String transceiverId,
+                                                      String trackId,
+                                                      final Callback callback) {
+        ThreadUtils.runOnExecutor(() ->
+            this.peerConnectionTransceiverReplaceTrackAsync(id, transceiverId, trackId, callback));
+    }
+
+    private void peerConnectionTransceiverReplaceTrackAsync(int id,
+                                                            String transceiverId,
+                                                            String trackId,
+                                                            final Callback callback) {
+        PeerConnectionObserver pco  = mPeerConnectionObservers.get(id);
+        if (pco != null) {
+            RtpTransceiver transceiver = pco.transceivers.get(transceiverId);
+            RtpSender sender = transceiver.getSender();
+            MediaStreamTrack track = getTrack(trackId);
+            sender.setTrack(track, false);
+            callback.invoke(true, serializeTransceiverState(transceiverId, transceiver));
+        } else {
+            Log.d(TAG, "peerConnectionTransceiverReplaceTrack() peerConnection is null");
             callback.invoke(false, "peerConnection is null");
         }
     }
