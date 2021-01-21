@@ -1,18 +1,19 @@
 import {NativeModules} from 'react-native';
+import RTCRtpSender from './RTCRtpSender';
 
 const {WebRTCModule} = NativeModules;
 
 export default class RTCRtpTransceiver {
     _state: any;
     _peerConnectionId: number;
+    sender: RTCRtpSender
+    id: string;
 
     constructor(pcId, state) {
         this._peerConnectionId = pcId;
         this._state = state;
-    }
-
-    get id() {
-        return this.state.id;
+        this.id = state.id;
+        this.sender = new RTCRtpSender(this);
     }
 
     get mid() {
@@ -42,5 +43,9 @@ export default class RTCRtpTransceiver {
                 }
             });
         });
+    }
+
+    _updateState(state) {
+        this._state = state;
     }
 }
