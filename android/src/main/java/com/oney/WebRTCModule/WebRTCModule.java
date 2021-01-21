@@ -375,6 +375,22 @@ public class WebRTCModule extends ReactContextBaseJavaModule {
             conf.presumeWritableWhenFullyRelayed = v;
         }
 
+        // sdpSemantics
+        if (map.hasKey("sdpSemantics")
+            && map.getType("sdpSemantics") == ReadableType.String) {
+            final String v = map.getString("sdpSemantics");
+            if (v != null) {
+                switch (v) {
+                    case "unified-plan":
+                        conf.sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN;
+                        break;
+                    case "plan-b":
+                        conf.sdpSemantics = PeerConnection.SdpSemantics.PLAN_B;
+                }
+
+            }
+        }
+
         return conf;
     }
 
