@@ -376,6 +376,12 @@ export default class RTCPeerConnection extends EventTarget(PEER_CONNECTION_EVENT
           track.dispatchEvent(new MediaStreamTrackEvent(eventName, {track}));
         }
       }),
+      EventEmitter.addListener('peerConnectionUpdateLocalDescription', ev => {
+        if (ev.id !== this._peerConnectionId) {
+          return;
+        }
+        this.localDescription = new RTCSessionDescription({type: ev.type, sdp: ev.description});
+      }),
       EventEmitter.addListener('peerConnectionGotICECandidate', ev => {
         if (ev.id !== this._peerConnectionId) {
           return;

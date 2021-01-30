@@ -714,6 +714,12 @@ RCT_EXPORT_METHOD(peerConnectionGetStats:(nonnull NSNumber *) objectID
                            @"sdpMid": candidate.sdpMid
                        }
                      }];
+  [self sendEventWithName:kEventPeerConnectionUpdateLocalDescription
+                     body:@{
+                       @"id": peerConnection.reactTag,
+                       @"type": [RTCSessionDescription stringForType:peerConnection.localDescription.type],
+                       @"description": peerConnection.localDescription.sdp
+                     }];
 }
 
 - (void)peerConnection:(RTCPeerConnection*)peerConnection didOpenDataChannel:(RTCDataChannel*)dataChannel {

@@ -20,6 +20,7 @@ import org.webrtc.MediaStreamTrack;
 import org.webrtc.PeerConnection;
 import org.webrtc.RtpReceiver;
 import org.webrtc.RtpTransceiver;
+import org.webrtc.SessionDescription;
 import org.webrtc.StatsObserver;
 import org.webrtc.StatsReport;
 import org.webrtc.VideoTrack;
@@ -236,6 +237,16 @@ class PeerConnectionObserver implements PeerConnection.Observer {
         });
     }
 
+    public void updateLocalDescription() {
+        SessionDescription local = peerConnection.getLocalDescription();
+        WritableMap params = Arguments.createMap();
+        params.putInt("id", id);
+        params.putString("type", local.type.canonicalForm());
+        params.putString("description", local.description);
+        webRTCModule.sendEvent("peerConnectionUpdateLocalDescription", params);
+
+    }
+
     @Override
     public void onIceCandidate(final IceCandidate candidate) {
         Log.d(TAG, "onIceCandidate");
@@ -248,6 +259,7 @@ class PeerConnectionObserver implements PeerConnection.Observer {
         params.putMap("candidate", candidateParams);
 
         webRTCModule.sendEvent("peerConnectionGotICECandidate", params);
+        updateLocalDescription();
     }
 
     @Override
